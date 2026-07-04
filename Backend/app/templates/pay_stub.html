@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 11px; color: #1a1a2e; }
+        .page { width: 210mm; padding: 15mm; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #1a1a2e; padding-bottom: 10px; margin-bottom: 15px; }
+        .company-name { font-size: 20px; font-weight: bold; color: #1a1a2e; }
+        .pay-stub-label { font-size: 14px; color: #666; text-align: right; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px; }
+        .info-item { font-size: 10px; }
+        .info-label { color: #666; font-weight: bold; }
+        .info-value { color: #1a1a2e; }
+        .tables { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table th { background: #1a1a2e; color: white; padding: 6px 8px; text-align: left; font-size: 10px; }
+        .table td { padding: 5px 8px; border-bottom: 1px solid #eee; font-size: 10px; }
+        .table tr:last-child td { border-bottom: 2px solid #1a1a2e; font-weight: bold; }
+        .total-section { text-align: right; padding: 15px; background: #f0f7ff; border-radius: 6px; margin-bottom: 15px; }
+        .net-pay { font-size: 24px; font-weight: bold; color: #16a34a; }
+        .footer { text-align: center; font-size: 9px; color: #999; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div>
+                <div class="company-name">{{ company_name }}</div>
+                <div style="font-size: 10px; color: #666;">PAY STUB</div>
+            </div>
+            <div class="pay-stub-label">
+                <div style="font-size: 12px; font-weight: bold;">{{ month_name }} {{ year }}</div>
+                <div style="font-size: 10px;">Ref: {{ ref_id }}</div>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item"><span class="info-label">Employee:</span> <span class="info-value">{{ employee_name }}</span></div>
+            <div class="info-item"><span class="info-label">Employee ID:</span> <span class="info-value">{{ employee_id }}</span></div>
+            <div class="info-item"><span class="info-label">Department:</span> <span class="info-value">{{ department }}</span></div>
+            <div class="info-item"><span class="info-label">Designation:</span> <span class="info-value">{{ designation }}</span></div>
+        </div>
+
+        <div class="tables">
+            <div>
+                <table class="table">
+                    <tr><th colspan="2">EARNINGS</th></tr>
+                    {% for name, amount in components.items() %}
+                    {% if name != 'pf' and 'tax' not in name and 'deduction' not in name %}
+                    <tr><td>{{ name.replace('_', ' ').title() }}</td><td style="text-align: right;">₹ {{ "{:,.0f}".format(amount) }}</td></tr>
+                    {% endif %}
+                    {% endfor %}
+                    <tr><td><strong>Gross Pay</strong></td><td style="text-align: right;"><strong>₹ {{ "{:,.0f}".format(gross_pay) }}</strong></td></tr>
+                </table>
+            </div>
+            <div>
+                <table class="table">
+                    <tr><th colspan="2">DEDUCTIONS</th></tr>
+                    {% for name, amount in components.items() %}
+                    {% if name == 'pf' or 'tax' in name or 'deduction' in name %}
+                    <tr><td>{{ name.replace('_', ' ').title() }}</td><td style="text-align: right;">₹ {{ "{:,.0f}".format(amount) }}</td></tr>
+                    {% endif %}
+                    {% endfor %}
+                    <tr><td><strong>Total Deductions</strong></td><td style="text-align: right;"><strong>₹ {{ "{:,.0f}".format(deductions) }}</strong></td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="total-section">
+            <div style="font-size: 11px; color: #666; margin-bottom: 5px;">NET TAKE-HOME PAY</div>
+            <div class="net-pay">₹ {{ "{:,.0f}".format(net_pay) }}</div>
+        </div>
+
+        <div class="footer">
+            <p>Generated on {{ generated_date }} | Reference: {{ ref_id }}</p>
+            <p>This is a computer-generated pay stub and does not require a signature.</p>
+        </div>
+    </div>
+</body>
+</html>
